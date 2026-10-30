@@ -1,0 +1,19 @@
+{
+  "name": "도트 데이즈 — 여름날의 루틴 RPG",
+  "short_name": "도트 데이즈",
+  "description": "할 일과 루틴을 퀘스트로 완료하며 성장하는 도트 아트 루틴 앱",
+  "lang": "ko",
+  "id": "./",
+  "start_url": "./#/village",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#efe2c2",
+  "theme_color": "#275d86",
+  "categories": ["productivity", "lifestyle", "games"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
