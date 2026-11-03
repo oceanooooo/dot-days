@@ -14,7 +14,9 @@ import { divePage, tick as diveTick } from './views/dive.js';
 import { mePage, achievementsPage, dexPage, recordsPage } from './views/me.js';
 import { ddayListPage, ddayCalcPage } from './views/dday.js';
 import { settingsPage, dataPage, askConflict } from './views/settings.js';
-import { dashboardPage, historyPage } from './views/insights.js';
+import { dashboardPage, historyPage, calendarPage } from './views/insights.js';
+import { openMenu } from './views/menu.js';
+import { SITE, RAIL_SUB } from './nav.js';
 import { managePage, presetsPage, archivePage, attrsPage } from './views/manage.js';
 import { openQuestEditor } from './views/quests.js';
 
@@ -23,7 +25,7 @@ const ROUTES = {
   shop: rewardsPage, 'shop/general': generalPage, 'shop/bag': bagPage, dive: divePage,
   me: mePage, 'me/achievements': achievementsPage, 'me/dex': dexPage, 'me/records': recordsPage,
   dday: ddayListPage, 'dday/calc': ddayCalcPage, settings: settingsPage, 'settings/data': dataPage,
-  'me/dashboard': dashboardPage, 'me/history': historyPage,
+  'me/dashboard': dashboardPage, 'me/history': historyPage, 'me/calendar': calendarPage,
   manage: managePage, 'manage/presets': presetsPage, 'manage/archive': archivePage, 'manage/attrs': attrsPage,
 };
 const TABS = [['village', 'home', '마을'], ['quests', 'quest', '퀘스트'], ['shop', 'shop', '상점'], ['dive', 'dive', '다이빙'], ['me', 'me', '모험가']];
@@ -53,7 +55,7 @@ function render() {
   renderTabs(page.tab);
   page.mounted?.(main);
   setBaseScreen(page.screen);
-  document.title = key === 'village' || !S ? '도트 데이즈' : `${main.querySelector('.page-title')?.textContent || ''} · 도트 데이즈`;
+  document.title = key === 'village' || !S ? '도트 데이즈' : `${SITE[key]?.title || main.querySelector('.page-title')?.textContent || ''} · 도트 데이즈`;
 
   if (changed) {
     curKey = key; curPage = page;
@@ -62,8 +64,12 @@ function render() {
   }
 }
 function renderTabs(cur) {
+  const key = routeKey();
   document.getElementById('tabbar').innerHTML = str(html`${TABS.map(([k, icon, label]) =>
-    html`<a class="tab ${cur === k ? 'on' : ''}" href="#/${k}" title="${label} (단축키 ${TABS.findIndex(t => t[0] === k) + 1})" ${cur === k ? html`aria-current="page"` : ''}>${uiIcon(icon, 24)}<span>${label}</span></a>`)}<p class="kbd-hint">1~5 탭 이동<br>N 새 퀘스트</p>`);
+    html`<a class="tab ${cur === k ? 'on' : ''}" href="#/${k}" title="${label} (단축키 ${TABS.findIndex(t => t[0] === k) + 1})" ${cur === k ? html`aria-current="${k === key ? 'page' : 'true'}"` : ''}>${uiIcon(icon, 24)}<span>${label}</span></a>`)}
+    <div class="rail-sub" role="group" aria-label="자주 쓰는 화면">${RAIL_SUB.map(k => html`<a class="rail-a ${key === k || key.startsWith(k + '/') ? 'on' : ''}" href="#/${k}" ${key === k ? html`aria-current="page"` : ''}>${uiIcon(SITE[k].icon, 16)}<span>${SITE[k].title}</span></a>`)}
+      <button class="rail-a" data-act="nav.menu" aria-haspopup="dialog">${uiIcon('menu', 16)}<span>전체 메뉴</span></button></div>
+    <p class="kbd-hint">1~5 탭 이동<br>N 새 퀘스트<br>M 전체 메뉴</p>`);
 }
 
 let pending = false;
@@ -89,12 +95,13 @@ async function boot() {
     if (!opts.noTouch && !opts.replaced && !opts.silent && store.S) scheduleSync(askConflict);
   });
   addEventListener('hashchange', render);
-  // PC 키보드 단축키 (NFR-PLT-006): 1~5 탭 이동, N 새 퀘스트
+  // PC 키보드 단축키 (NFR-PLT-006): 1~5 탭 이동, N 새 퀘스트, M 전체 메뉴(REQ-06)
   addEventListener('keydown', e => {
     if (!store.S || store.S.dive || overlayOpen() || e.metaKey || e.ctrlKey || e.altKey || /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) return;
     const i = '12345'.indexOf(e.key);
     if (i >= 0) { location.hash = '#/' + TABS[i][0]; e.preventDefault(); }
     else if (e.key === 'n' || e.key === 'N' || e.key === 'ㅜ') { openQuestEditor(); e.preventDefault(); }
+    else if (e.key === 'm' || e.key === 'M' || e.key === 'ㅡ') { openMenu(); e.preventDefault(); }
   });
   render();
   diveTick(); // 앱이 꺼진 사이 다이빙이 끝났으면 결과 표시 (FR-DIV-003)

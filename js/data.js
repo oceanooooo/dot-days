@@ -1,6 +1,6 @@
 // 게임 상수. 기능명세서(02_요구사항/기능명세서.md) 5장과 반드시 같은 값으로 유지
 
-export const APP_VERSION = '1.1.0';
+export const APP_VERSION = '1.2.0';
 export const DATA_VERSION = 2;
 
 /** 5-1 퀘스트 보상 (index = 난이도 1~5) */

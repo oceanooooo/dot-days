@@ -4,6 +4,17 @@ import { uiIcon, itemIcon } from '../ui.js';
 import { MASCOT, AVATARS } from '../art.js';
 import { levelInfo } from '../game.js';
 import { pixelURL } from '../pixel.js';
+import { SITE, trail, currentKey } from '../nav.js';
+
+/** 전체 메뉴 버튼 (모든 화면 머리글, REQ-06) */
+const menuBtn = () => html`<button class="icon-btn menu-btn" data-act="nav.menu" aria-label="전체 메뉴 (단축키 M)" aria-haspopup="dialog" title="전체 메뉴 (M)">${uiIcon('menu', 24)}</button>`;
+
+/** 현재 위치: 상위 화면 링크 (2단계 이상일 때만) */
+function crumbs() {
+  const t = trail(currentKey());
+  if (t.length < 2) return '';
+  return html`<nav class="crumbs" aria-label="현재 위치"><ol>${t.slice(0, -1).map(k => html`<li><a href="#/${k}">${SITE[k].title}</a></li>`)}</ol></nav>`;
+}
 
 /** 탭 첫 화면(back 없음)은 좁은 화면에서 한 줄 HUD를 보여 줌 (와이어프레임 공통 레이아웃 ②) */
 export function pageHead(S, title, { back = '', right = '' } = {}) {
@@ -15,15 +26,19 @@ export function pageHead(S, title, { back = '', right = '' } = {}) {
     return html`<header class="page-head root">
       <div class="mini-hud"><img class="px mini-face" src="${face}" width="24" height="24" alt=""><b class="mini-name">${S.profile.name}</b><span class="lv">Lv.${L.lv}</span>${bar(L.cur, L.need, { cls: 'exp mini', label: '경험치' })}</div>
       <h1 class="page-title" tabindex="-1">${title}</h1>
-      ${right || coins}
+      ${right || coins}${menuBtn()}
     </header>`;
   }
+  const up = SITE[trail(currentKey()).slice(-2, -1)[0]]?.title;
   return html`<header class="page-head">
-    <a class="icon-btn back" href="${back}" aria-label="뒤로">${uiIcon('arrow_left', 24)}</a>
-    <h1 class="page-title" tabindex="-1">${title}</h1>
-    ${right || coins}
+    <a class="icon-btn back" href="${back}" aria-label="${up ? `${up} 화면으로 돌아가기` : '뒤로'}">${uiIcon('arrow_left', 24)}</a>
+    <div class="head-titles">${crumbs()}<h1 class="page-title" tabindex="-1">${title}</h1></div>
+    ${right || coins}${menuBtn()}
   </header>`;
 }
+
+/** 같은 묶음 화면 사이를 옮겨 다니는 보조 탭 (링크) */
+export const subnav = (items, cur, label) => html`<nav class="subnav" aria-label="${label}">${items.map(([k, l]) => html`<a class="subnav-a ${k === cur ? 'on' : ''}" href="#/${k}" ${k === cur ? html`aria-current="page"` : ''}>${uiIcon(SITE[k].icon, 16)}<span>${l}</span></a>`)}</nav>`;
 
 export const empty = (text, btn = '') => html`<div class="empty panel">${mascotImg(48)}<p>${text}</p>${btn}</div>`;
 

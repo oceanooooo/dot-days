@@ -4,11 +4,12 @@ import { ITEMS } from '../sprites-items.js';
 import { AVATARS } from '../art.js';
 import { pixelURL } from '../pixel.js';
 import { levelInfo, attrInfo, titleOf, dexStats, DEX_IDS, itemInfo, achvContext, achvProgress, today, attrList } from '../game.js';
-import { openDay } from './insights.js';
+import { openDay, dashboardData } from './insights.js';
+import { SITE, INSIGHT_TABS } from '../nav.js';
 import { ACHIEVEMENTS, RARITY, CAT_NAMES, ICON_CATS } from '../data.js';
 import { html, num, addDays, fmtShort, fmtDate, fmtTime, keyOf, weekName, weekday } from '../util.js';
 import { actions, openOverlay, uiIcon, itemIcon, attrIcon } from '../ui.js';
-import { pageHead, bar, itemSlot } from './common.js';
+import { pageHead, bar, itemSlot, subnav } from './common.js';
 
 const avatarImg = (id, size) => {
   const fr = (AVATARS[id] || AVATARS.straw).frames;
@@ -20,11 +21,17 @@ const avatarImg = (id, size) => {
 export { avatarImg };
 
 // ---------------------------------------------------------------- 모험가
+/** 모험가 메뉴 묶음 (REQ-06): [화면 키, 오른쪽 작은 정보] */
+const ME_GROUPS = [
+  ['현황', [['me/dashboard', () => ''], ['me/calendar', () => ''], ['me/history', S => `${num(S.log.length)}건`], ['me/records', () => '']]],
+  ['수집', [['me/achievements', S => `${Object.keys(S.achv).length}/${ACHIEVEMENTS.length}`], ['me/dex', S => `${dexStats(S).pct}%`]]],
+  ['도구', [['dday', S => `${S.ddays.length}개`], ['manage', () => '프리셋·보관함·능력치'], ['settings', () => '소리·백업·동기화']]],
+];
 export const mePage = {
   screen: 'MO-ADV-001', tab: 'me',
   render(S) {
     const L = levelInfo(S.exp), dex = dexStats(S);
-    const achN = Object.keys(S.achv).length;
+    const wk = dashboardData(S, 'week');
     return html`${pageHead(S, '모험가')}
     <div class="content">
       <section class="profile panel">
@@ -42,16 +49,12 @@ export const mePage = {
         return html`<li class="attr-row" style="--c:${a.color}">${attrIcon(a.id, 24)}<span class="attr-name">${a.name}</span><span class="lv">Lv.${I.lv}</span>
           ${bar(I.cur, I.need, { cls: 'attr', label: `${a.name} 경험치`, segs: 8 })}<span class="attr-num">${I.cur}/${I.need}</span></li>`;
       })}</ul>
-      <nav class="menu panel" aria-label="모험가 메뉴">
-        <a class="menu-item" href="#/me/dashboard">${uiIcon('dashboard', 24)}<span>대시보드</span><b>현황</b></a>
-        <a class="menu-item" href="#/me/history">${uiIcon('history', 24)}<span>히스토리</span><b>${S.log.length}건</b></a>
-        <a class="menu-item" href="#/me/achievements">${uiIcon('trophy', 24)}<span>업적</span><b>${achN}/${ACHIEVEMENTS.length}</b></a>
-        <a class="menu-item" href="#/me/dex">${uiIcon('dex', 24)}<span>도감</span><b>${dex.pct}%</b></a>
-        <a class="menu-item" href="#/me/records">${uiIcon('chart', 24)}<span>기록·통계</span><b></b></a>
-        <a class="menu-item" href="#/dday">${uiIcon('calendar', 24)}<span>디데이</span><b>${S.ddays.length}개</b></a>
-        <a class="menu-item" href="#/manage">${uiIcon('tools', 24)}<span>관리</span><b>프리셋·보관함·능력치</b></a>
-        <a class="menu-item" href="#/settings">${uiIcon('gear', 24)}<span>설정</span><b></b></a>
-      </nav>
+      <a class="week-card panel" href="#/me/dashboard" aria-label="이번 주 요약: 완료 ${wk.done}회, 달성률 ${wk.rate == null ? '없음' : wk.rate + '%'}. 대시보드 열기">
+        <span class="wc-t">${uiIcon('dashboard', 24)} 이번 주</span>
+        <span class="wc-v"><b>${wk.done}</b>회 완료</span><span class="wc-v"><b>${wk.rate == null ? '-' : wk.rate + '%'}</b> 달성률</span><span class="wc-v"><b>${num(wk.exp)}</b> EXP</span>
+        <span class="wc-go">자세히 ${uiIcon('arrow_right', 16)}</span></a>
+      ${ME_GROUPS.map(([g, items]) => html`<section class="me-group"><h2 class="section-title">${g}</h2>
+        <ul class="tile-menu">${items.map(([k, info]) => html`<li><a class="mtile" href="#/${k}">${uiIcon(SITE[k].icon, 24)}<span class="mtile-t">${SITE[k].title}</span><small>${info(S) || SITE[k].desc || ''}</small></a></li>`)}</ul></section>`)}
     </div>`;
   },
 };
@@ -129,6 +132,7 @@ export const recordsPage = {
       ['모은 조개', num(S.stats.coinsEarned)], ['쓴 조개', num(S.stats.coinsSpent)], ['도감 수집률', `${dex.pct}%`], ['완벽한 하루', `${num(S.stats.perfectDays)}일`],
     ];
     return html`${pageHead(S, '기록·통계', { back: '#/me' })}
+    ${subnav(INSIGHT_TABS, 'me/records', '현황 화면')}
     <div class="content">
       <div class="stat-grid">${stats.map(([k, v]) => html`<div class="stat panel"><span class="stat-k">${k}</span><b class="stat-v">${v}</b></div>`)}</div>
       <h2 class="section-title">도트 잔디 <small class="muted">최근 17주 퀘스트 완료</small></h2>

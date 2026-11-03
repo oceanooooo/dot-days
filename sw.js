@@ -1,13 +1,13 @@
 // 오프라인 실행용 서비스 워커 (NFR-OFF-001). 배포할 때마다 VERSION을 올리면 새 버전으로 교체됨 (NFR-OFF-002)
-const VERSION = '1.1.0';
+const VERSION = '1.2.0';
 const CACHE = `dotdays-${VERSION}`;
 const FILES = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'fonts/Galmuri11.woff2', 'fonts/Galmuri11-Bold.woff2', 'fonts/OFL.txt',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png', 'icons/favicon-32.png',
-  'js/app.js', 'js/art.js', 'js/data.js', 'js/dday.js', 'js/fx.js', 'js/game.js', 'js/pixel.js', 'js/scene.js', 'js/sound.js',
+  'js/app.js', 'js/nav.js', 'js/art.js', 'js/data.js', 'js/dday.js', 'js/fx.js', 'js/game.js', 'js/pixel.js', 'js/scene.js', 'js/sound.js',
   'js/sprites-items.js', 'js/sprites-ui.js', 'js/sprites-variants.js', 'js/sprites-fx.js', 'js/store.js', 'js/sync.js', 'js/ui.js', 'js/util.js',
-  'js/views/common.js', 'js/views/dday.js', 'js/views/insights.js', 'js/views/manage.js', 'js/views/dive.js', 'js/views/me.js', 'js/views/onboarding.js',
+  'js/views/common.js', 'js/views/dday.js', 'js/views/insights.js', 'js/views/menu.js', 'js/views/manage.js', 'js/views/dive.js', 'js/views/me.js', 'js/views/onboarding.js',
   'js/views/quests.js', 'js/views/settings.js', 'js/views/shop.js', 'js/views/village.js',
 ];
 

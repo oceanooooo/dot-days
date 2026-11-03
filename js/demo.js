@@ -10,6 +10,7 @@ import { openDdayEditor } from './views/dday.js';
 import { askConflict } from './views/settings.js';
 import { openPresetPicker, openAttrEditor } from './views/manage.js';
 import { openDay } from './views/insights.js';
+import { openMenu } from './views/menu.js';
 
 function seeded(seed) { return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
 
@@ -82,7 +83,7 @@ export async function gotoScreen(id) {
     'MO-HOM-001': '#/village', 'MO-QST-001': '#/quests', 'MO-SHP-001': '#/shop', 'MO-SHP-002': '#/shop/general', 'MO-BAG-001': '#/shop/bag',
     'MO-DIV-001': '#/dive', 'MO-ADV-001': '#/me', 'MO-ADV-002': '#/me/achievements', 'MO-ADV-003': '#/me/dex', 'MO-ADV-004': '#/me/records',
     'MO-DDY-001': '#/dday', 'MO-DDY-002': '#/dday/calc', 'MO-SET-001': '#/settings', 'MO-SET-002': '#/settings/data',
-    'MO-ADV-005': '#/me/dashboard', 'MO-ADV-006': '#/me/history', 'MO-MNG-001': '#/manage', 'MO-MNG-002': '#/manage/presets', 'MO-MNG-003': '#/manage/archive', 'MO-MNG-004': '#/manage/attrs',
+    'MO-ADV-005': '#/me/dashboard', 'MO-ADV-006': '#/me/history', 'MO-ADV-008': '#/me/calendar', 'MO-MNG-001': '#/manage', 'MO-MNG-002': '#/manage/presets', 'MO-MNG-003': '#/manage/archive', 'MO-MNG-004': '#/manage/attrs',
   };
   if (routes[id]) return go(routes[id]);
   if (id.startsWith('MO-ONB')) {
@@ -119,6 +120,7 @@ export async function gotoScreen(id) {
       return slipPopup(res);
     }
     case 'MO-ADV-007': go('#/me/history'); return openDay(day);
+    case 'MO-COM-006': go('#/me/dashboard'); return openMenu();
     case 'MO-MNG-005': go('#/manage/attrs'); return openAttrEditor(S.attrDefs.find(a => a.id === 'wealth'));
     case 'MO-COM-001': {
       go('#/village');
